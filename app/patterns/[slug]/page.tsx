@@ -314,8 +314,8 @@ export default async function PatternPage({ params }: PatternPageProps) {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
-              <Card className="sticky top-24">
+            <div className="sticky top-24 space-y-6 h-fit">
+              <Card>
                 <CardHeader>
                   <CardTitle>Download Pattern</CardTitle>
                 </CardHeader>
