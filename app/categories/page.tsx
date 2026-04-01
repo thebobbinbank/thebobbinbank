@@ -1,11 +1,11 @@
-import Link from "next/link"
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Header } from "@/components/header"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { createClient } from "@/lib/supabase/server"
-import { Scissors, Shirt, Baby, Sparkles, Home, ArrowRight } from "lucide-react"
 import type { Category } from "@/lib/types"
+import { ArrowRight, Baby, Home, Scissors, Shirt, Sparkles } from "lucide-react"
+import Link from "next/link"
 
 const categoryIcons: Record<string, React.ReactNode> = {
   dresses: <Shirt className="h-6 w-6" />,

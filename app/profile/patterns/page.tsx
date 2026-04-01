@@ -1,12 +1,12 @@
-import { redirect } from "next/navigation"
-import Link from "next/link"
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { Header } from "@/components/header"
 import { PatternGrid } from "@/components/pattern-grid"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
-import { Plus } from "lucide-react"
 import type { Pattern } from "@/lib/types"
+import { Plus } from "lucide-react"
+import Link from "next/link"
+import { redirect } from "next/navigation"
 
 async function getMyPatternsData() {
   const supabase = await createClient()
@@ -25,18 +25,43 @@ async function getMyPatternsData() {
 
   const { data: patterns } = await supabase
     .from("patterns")
-    .select(`
-      *,
-      profiles (id, display_name, avatar_url),
-      categories (id, name, slug)
-    `)
+    .select("*")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
+
+  // Enrich patterns with profile and category data
+  const enrichedPatterns = await Promise.all(
+    (patterns || []).map(async (pattern) => {
+      let enrichedPattern: any = { ...pattern }
+
+      // Fetch profile data
+      if (pattern.user_id) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("id, display_name, avatar_url")
+          .eq("id", pattern.user_id)
+          .single()
+        enrichedPattern.profiles = profileData
+      }
+
+      // Fetch category data
+      if (pattern.category_id) {
+        const { data: category } = await supabase
+          .from("categories")
+          .select("id, name, slug")
+          .eq("id", pattern.category_id)
+          .single()
+        enrichedPattern.categories = category
+      }
+
+      return enrichedPattern
+    })
+  )
 
   return {
     user,
     profile,
-    patterns: (patterns as Pattern[]) || [],
+    patterns: (enrichedPatterns as Pattern[]) || [],
   }
 }
 
