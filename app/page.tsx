@@ -1,13 +1,13 @@
-import Link from "next/link"
+import { Footer } from "@/components/footer"
+import { Header } from "@/components/header"
+import { PatternGrid } from "@/components/pattern-grid"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { PatternGrid } from "@/components/pattern-grid"
 import { createClient } from "@/lib/supabase/server"
-import { Scissors, Download, Users, Heart, ArrowRight } from "lucide-react"
-import type { Pattern, Category } from "@/lib/types"
+import type { Category, Pattern } from "@/lib/types"
+import { ArrowRight, Download, Heart, Scissors, Users } from "lucide-react"
+import Link from "next/link"
 
 async function getHomeData() {
   const supabase = await createClient()
@@ -72,7 +72,7 @@ export default async function HomePage() {
               </Badge>
               <h1 className="mb-6 text-4xl font-bold tracking-tight text-balance sm:text-5xl lg:text-6xl">
                 Share the joy of sewing with{" "}
-                <span className="text-primary">Stitchery</span>
+                <span className="text-primary">The Bobbin Bank</span>
               </h1>
               <p className="mb-8 text-lg text-muted-foreground leading-relaxed text-pretty">
                 A cozy corner of the internet where sewers come together to share patterns,

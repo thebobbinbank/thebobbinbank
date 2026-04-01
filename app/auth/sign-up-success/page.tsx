@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -6,8 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Scissors, Mail } from 'lucide-react'
+import { Mail, Scissors } from 'lucide-react'
+import Link from 'next/link'
 
 export default function SignUpSuccessPage() {
   return (
@@ -16,7 +16,7 @@ export default function SignUpSuccessPage() {
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Scissors className="h-5 w-5" />
         </div>
-        <span className="text-2xl font-semibold tracking-tight">Stitchery</span>
+        <span className="text-2xl font-semibold tracking-tight">The Bobbin Bank</span>
       </Link>
 
       <div className="w-full max-w-sm">
@@ -33,7 +33,7 @@ export default function SignUpSuccessPage() {
           <CardContent className="text-center">
             <p className="mb-6 text-sm text-muted-foreground leading-relaxed">
               Click the link in your email to confirm your account and start
-              sharing patterns with the Stitchery community.
+              sharing patterns with the The Bobbin Bank community.
             </p>
             <Button asChild variant="outline" className="w-full">
               <Link href="/auth/login">Back to Sign In</Link>

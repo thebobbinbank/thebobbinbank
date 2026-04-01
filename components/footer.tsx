@@ -1,5 +1,5 @@
-import Link from "next/link"
 import { Scissors } from "lucide-react"
+import Link from "next/link"
 
 export function Footer() {
   return (
@@ -11,7 +11,7 @@ export function Footer() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <Scissors className="h-4 w-4" />
               </div>
-              <span className="text-lg font-semibold">Stitchery</span>
+              <span className="text-lg font-semibold">The Bobbin Bank</span>
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
               A cozy community for sewers to share and discover beautiful sewing patterns.
@@ -49,7 +49,7 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/auth/sign-up" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Join Stitchery
+                  Join The Bobbin Bank
                 </Link>
               </li>
             </ul>
@@ -60,7 +60,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               <li>
                 <span className="text-muted-foreground">
-                  help@stitchery.app
+                  thebobbinbank@gmail.com
                 </span>
               </li>
             </ul>
@@ -68,7 +68,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Stitchery. Made with love for the sewing community.</p>
+          <p>&copy; {new Date().getFullYear()} The Bobbin Bank. Made with love for the sewing community.</p>
         </div>
       </div>
     </footer>

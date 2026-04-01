@@ -51,7 +51,7 @@ export default function LoginPage() {
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Scissors className="h-5 w-5" />
         </div>
-        <span className="text-2xl font-semibold tracking-tight">Stitchery</span>
+        <span className="text-2xl font-semibold tracking-tight">The Bobbin Bank</span>
       </Link>
 
       <div className="w-full max-w-sm">
@@ -102,7 +102,7 @@ export default function LoginPage() {
                   href="/auth/sign-up"
                   className="font-medium text-primary hover:underline"
                 >
-                  Join Stitchery
+                  Join The Bobbin Bank
                 </Link>
               </div>
             </form>

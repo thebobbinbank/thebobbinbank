@@ -1,6 +1,5 @@
 'use client'
 
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -12,10 +11,11 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
+import { createClient } from '@/lib/supabase/client'
+import { Scissors } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Scissors } from 'lucide-react'
 
 export default function SignUpPage() {
   const [displayName, setDisplayName] = useState('')
@@ -72,13 +72,13 @@ export default function SignUpPage() {
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Scissors className="h-5 w-5" />
         </div>
-        <span className="text-2xl font-semibold tracking-tight">Stitchery</span>
+        <span className="text-2xl font-semibold tracking-tight">The Bobbin Bank</span>
       </Link>
 
       <div className="w-full max-w-sm">
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Join Stitchery</CardTitle>
+            <CardTitle className="text-2xl">Join The Bobbin Bank</CardTitle>
             <CardDescription>
               Create a free account to share patterns and save your favorites
             </CardDescription>
