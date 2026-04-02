@@ -15,7 +15,7 @@ export function PageLayout({ children, user, profile }: PageLayoutProps) {
 
             <main className="flex-1">
                 <div className="w-full bg-background">
-                    <div className="container mx-auto px-24 py-12">
+                    <div className="container mx-auto px-4 py-8 md:px-24 md:py-12">
                         {children}
                     </div>
                 </div>

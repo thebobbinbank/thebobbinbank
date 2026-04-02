@@ -130,7 +130,7 @@ export default async function HomePage() {
         </section>
 
         {/* Categories Section */}
-        <section className="py-16 px-24">
+        <section className="py-16 px-4 md:px-24">
           <div className="container mx-auto px-4">
             <div className="mb-10 flex items-center justify-between">
               <div>
@@ -165,7 +165,7 @@ export default async function HomePage() {
         </section>
 
         {/* Latest Patterns Section */}
-        <section className="border-t bg-muted/20 py-16 px-24">
+        <section className="border-t bg-muted/20 py-16 px-4 md:px-24">
           <div className="container mx-auto px-4">
             <div className="mb-10 flex items-center justify-between">
               <div>
