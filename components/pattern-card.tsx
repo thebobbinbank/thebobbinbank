@@ -14,9 +14,9 @@ interface PatternCardProps {
 }
 
 const difficultyColors = {
-  beginner: "bg-accent/20 text-accent-foreground border-accent/30",
+  beginner: "bg-accent/80 text-accent-foreground border-accent/30",
   intermediate: "bg-primary/10 text-primary border-primary/30",
-  advanced: "bg-chart-5/20 text-chart-5 border-chart-5/30",
+  advanced: "bg-chart-5/80 text-chart-5 border-chart-5/30",
 }
 
 export function PatternCard({ pattern }: PatternCardProps) {
@@ -49,7 +49,7 @@ export function PatternCard({ pattern }: PatternCardProps) {
             </div>
           )}
           <div className="absolute right-2 top-2">
-            <Badge variant="secondary" className={`${difficultyColors[pattern.difficulty]} border`}>
+            <Badge className={`${difficultyColors[pattern.difficulty]} border`}>
               {pattern.difficulty}
             </Badge>
           </div>
