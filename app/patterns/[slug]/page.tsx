@@ -5,6 +5,7 @@ import { DownloadButton } from "@/components/download-button"
 import { FavoriteButton } from "@/components/favorite-button"
 import { PageLayout } from "@/components/page-layout"
 import { ReviewSection } from "@/components/review-section"
+import { ShareButton } from "@/components/share-button"
 import { StarRating } from "@/components/star-rating"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -13,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { createClient } from "@/lib/supabase/server"
 import type { Comment, Pattern, Review } from "@/lib/types"
-import { ArrowLeft, Calendar, Download, Share2 } from "lucide-react"
+import { ArrowLeft, Calendar, Download } from "lucide-react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
@@ -332,9 +333,7 @@ export default async function PatternPage({ params }: PatternPageProps) {
                   initialFavorited={isFavorited}
                   user={user}
                 />
-                <Button variant="outline" size="icon" className="flex-shrink-0">
-                  <Share2 className="h-4 w-4" />
-                </Button>
+                <ShareButton title={pattern.title} />
               </div>
 
               <Separator />
