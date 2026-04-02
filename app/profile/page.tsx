@@ -1,8 +1,7 @@
-import { redirect } from "next/navigation"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
+import { PageLayout } from "@/components/page-layout"
 import { ProfileForm } from "@/components/profile-form"
 import { createClient } from "@/lib/supabase/server"
+import { redirect } from "next/navigation"
 
 async function getProfileData() {
   const supabase = await createClient()
@@ -29,23 +28,17 @@ export default async function ProfilePage() {
   const { user, profile } = await getProfileData()
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header user={user} profile={profile} />
+    <PageLayout user={user} profile={profile}>
+      <div className="mb-8 max-w-2xl">
+        <h1 className="text-3xl font-bold tracking-tight">My Profile</h1>
+        <p className="mt-2 text-muted-foreground">
+          Manage your profile information
+        </p>
+      </div>
 
-      <main className="flex-1">
-        <div className="container mx-auto max-w-2xl px-4 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold tracking-tight">My Profile</h1>
-            <p className="mt-2 text-muted-foreground">
-              Manage your profile information
-            </p>
-          </div>
-
-          <ProfileForm user={user} profile={profile} />
-        </div>
-      </main>
-
-      <Footer />
-    </div>
+      <div className="max-w-2xl">
+        <ProfileForm user={user} profile={profile} />
+      </div>
+    </PageLayout>
   )
 }

@@ -1,5 +1,4 @@
-import { Footer } from "@/components/footer"
-import { Header } from "@/components/header"
+import { PageLayout } from "@/components/page-layout"
 import { PatternGrid } from "@/components/pattern-grid"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
@@ -69,34 +68,26 @@ export default async function MyPatternsPage() {
   const { user, profile, patterns } = await getMyPatternsData()
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header user={user} profile={profile} />
-
-      <main className="flex-1">
-        <div className="container mx-auto px-4 py-8">
-          <div className="mb-8 flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">My Patterns</h1>
-              <p className="mt-2 text-muted-foreground">
-                {patterns.length} {patterns.length === 1 ? "pattern" : "patterns"} shared
-              </p>
-            </div>
-            <Button asChild>
-              <Link href="/patterns/new">
-                <Plus className="mr-2 h-4 w-4" />
-                Share Pattern
-              </Link>
-            </Button>
-          </div>
-
-          <PatternGrid
-            patterns={patterns}
-            emptyMessage="You haven't shared any patterns yet. Share your first pattern!"
-          />
+    <PageLayout user={user} profile={profile}>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">My Patterns</h1>
+          <p className="mt-2 text-muted-foreground">
+            {patterns.length} {patterns.length === 1 ? "pattern" : "patterns"} shared
+          </p>
         </div>
-      </main>
+        <Button asChild>
+          <Link href="/patterns/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Share Pattern
+          </Link>
+        </Button>
+      </div>
 
-      <Footer />
-    </div>
+      <PatternGrid
+        patterns={patterns}
+        emptyMessage="You haven't shared any patterns yet. Share your first pattern!"
+      />
+    </PageLayout>
   )
 }

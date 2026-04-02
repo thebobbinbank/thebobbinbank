@@ -3,8 +3,7 @@ import { BlobImage } from "@/components/blob-image"
 import { CommentSection } from "@/components/comment-section"
 import { DownloadButton } from "@/components/download-button"
 import { FavoriteButton } from "@/components/favorite-button"
-import { Footer } from "@/components/footer"
-import { Header } from "@/components/header"
+import { PageLayout } from "@/components/page-layout"
 import { ReviewSection } from "@/components/review-section"
 import { StarRating } from "@/components/star-rating"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -185,198 +184,190 @@ export default async function PatternPage({ params }: PatternPageProps) {
   })
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header user={user} profile={profile} />
+    <PageLayout user={user} profile={profile}>
+      {/* Breadcrumb */}
+      <div className="mb-6">
+        <Button variant="ghost" size="sm" asChild className="-ml-3">
+          <Link href="/patterns">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Patterns
+          </Link>
+        </Button>
+      </div>
 
-      <main className="flex-1">
-        <div className="container mx-auto px-4 py-8">
-          {/* Breadcrumb */}
-          <div className="mb-6">
-            <Button variant="ghost" size="sm" asChild className="-ml-3">
-              <Link href="/patterns">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Patterns
-              </Link>
-            </Button>
+      <div className="grid gap-8 lg:grid-cols-3">
+        {/* Main Content */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Pattern Image */}
+          <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-muted">
+            {pattern.image_url ? (
+              <BlobImage
+                src={pattern.image_url}
+                alt={pattern.title}
+                fill
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center">
+                <span className="text-8xl text-muted-foreground/30">
+                  {pattern.categories?.name?.[0] || "P"}
+                </span>
+              </div>
+            )}
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-3">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Pattern Image */}
-              <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-muted">
-                {pattern.image_url ? (
-                  <BlobImage
-                    src={pattern.image_url}
-                    alt={pattern.title}
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center">
-                    <span className="text-8xl text-muted-foreground/30">
-                      {pattern.categories?.name?.[0] || "P"}
-                    </span>
-                  </div>
-                )}
+          {/* Pattern Info */}
+          <div>
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              {pattern.categories && (
+                <Badge variant="outline">{pattern.categories.name}</Badge>
+              )}
+              <Badge className={`${difficultyColors[pattern.difficulty]} border`}>
+                {pattern.difficulty}
+              </Badge>
+            </div>
+
+            <h1 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl text-balance">
+              {pattern.title}
+            </h1>
+
+            <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8">
+                  <BlobAvatarImage src={pattern.profiles?.avatar_url} />
+                  <AvatarFallback className="bg-secondary text-xs">{creatorInitials}</AvatarFallback>
+                </Avatar>
+                <span>by <strong className="text-foreground">{creatorName}</strong></span>
               </div>
 
-              {/* Pattern Info */}
-              <div>
-                <div className="mb-4 flex flex-wrap items-center gap-2">
-                  {pattern.categories && (
-                    <Badge variant="outline">{pattern.categories.name}</Badge>
-                  )}
-                  <Badge className={`${difficultyColors[pattern.difficulty]} border`}>
-                    {pattern.difficulty}
-                  </Badge>
-                </div>
-
-                <h1 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl text-balance">
-                  {pattern.title}
-                </h1>
-
-                <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-8 w-8">
-                      <BlobAvatarImage src={pattern.profiles?.avatar_url} />
-                      <AvatarFallback className="bg-secondary text-xs">{creatorInitials}</AvatarFallback>
-                    </Avatar>
-                    <span>by <strong className="text-foreground">{creatorName}</strong></span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="h-4 w-4" />
-                    <span>{formattedDate}</span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5">
-                    <Download className="h-4 w-4" />
-                    <span>{pattern.download_count} downloads</span>
-                  </div>
-
-                  {reviewCount > 0 && (
-                    <div className="flex items-center gap-1.5">
-                      <StarRating rating={avgRating} size="sm" />
-                      <span>({reviewCount})</span>
-                    </div>
-                  )}
-                </div>
+              <div className="flex items-center gap-1.5">
+                <Calendar className="h-4 w-4" />
+                <span>{formattedDate}</span>
               </div>
 
-              <Separator />
-
-              {/* Description */}
-              <div>
-                <h2 className="mb-4 text-xl font-semibold">About this Pattern</h2>
-                <div className="prose prose-neutral max-w-none">
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                    {pattern.description || "No description provided for this pattern."}
-                  </p>
-                </div>
+              <div className="flex items-center gap-1.5">
+                <Download className="h-4 w-4" />
+                <span>{pattern.download_count} downloads</span>
               </div>
 
-              {/* Tags */}
-              {pattern.tags && pattern.tags.length > 0 && (
-                <div>
-                  <h3 className="mb-3 text-sm font-medium text-muted-foreground">Tags</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {pattern.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
+              {reviewCount > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <StarRating rating={avgRating} size="sm" />
+                  <span>({reviewCount})</span>
                 </div>
               )}
-
-              <Separator />
-
-              {/* Reviews Section */}
-              <ReviewSection
-                patternId={pattern.id}
-                reviews={reviews}
-                avgRating={avgRating}
-                reviewCount={reviewCount}
-                user={user}
-                userReview={userReview}
-              />
-
-              <Separator />
-
-              {/* Comments Section */}
-              <CommentSection
-                patternId={pattern.id}
-                comments={comments}
-                user={user}
-              />
-            </div>
-
-            {/* Sidebar */}
-            <div className="sticky top-24 space-y-6 h-fit">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Download Pattern</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    {pattern.file_name || "pattern-file.pdf"}
-                  </p>
-
-                  <DownloadButton
-                    patternId={pattern.id}
-                    fileUrl={pattern.file_url}
-                    fileName={pattern.file_name || "pattern.pdf"}
-                    user={user}
-                  />
-
-                  <div className="flex gap-2">
-                    <FavoriteButton
-                      patternId={pattern.id}
-                      initialFavorited={isFavorited}
-                      user={user}
-                    />
-                    <Button variant="outline" size="icon" className="flex-shrink-0">
-                      <Share2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  <Separator />
-
-                  <div className="text-xs text-muted-foreground">
-                    <p>Free to download and use for personal projects.</p>
-                    <p className="mt-1">Please credit the creator when sharing.</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Creator Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">About the Creator</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-12 w-12">
-                      <BlobAvatarImage src={pattern.profiles?.avatar_url} />
-                      <AvatarFallback className="bg-secondary">{creatorInitials}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">{creatorName}</p>
-                      {pattern.profiles?.username && (
-                        <p className="text-sm text-muted-foreground">@{pattern.profiles.username}</p>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </div>
-        </div>
-      </main>
 
-      <Footer />
-    </div>
+          <Separator />
+
+          {/* Description */}
+          <div>
+            <h2 className="mb-4 text-xl font-semibold">About this Pattern</h2>
+            <div className="prose prose-neutral max-w-none">
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                {pattern.description || "No description provided for this pattern."}
+              </p>
+            </div>
+          </div>
+
+          {/* Tags */}
+          {pattern.tags && pattern.tags.length > 0 && (
+            <div>
+              <h3 className="mb-3 text-sm font-medium text-muted-foreground">Tags</h3>
+              <div className="flex flex-wrap gap-2">
+                {pattern.tags.map((tag) => (
+                  <Badge key={tag} variant="secondary">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <Separator />
+
+          {/* Reviews Section */}
+          <ReviewSection
+            patternId={pattern.id}
+            reviews={reviews}
+            avgRating={avgRating}
+            reviewCount={reviewCount}
+            user={user}
+            userReview={userReview}
+          />
+
+          <Separator />
+
+          {/* Comments Section */}
+          <CommentSection
+            patternId={pattern.id}
+            comments={comments}
+            user={user}
+          />
+        </div>
+
+        {/* Sidebar */}
+        <div className="sticky top-24 space-y-6 h-fit">
+          <Card>
+            <CardHeader>
+              <CardTitle>Download Pattern</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                {pattern.file_name || "pattern-file.pdf"}
+              </p>
+
+              <DownloadButton
+                patternId={pattern.id}
+                fileUrl={pattern.file_url}
+                fileName={pattern.file_name || "pattern.pdf"}
+                user={user}
+              />
+
+              <div className="flex gap-2">
+                <FavoriteButton
+                  patternId={pattern.id}
+                  initialFavorited={isFavorited}
+                  user={user}
+                />
+                <Button variant="outline" size="icon" className="flex-shrink-0">
+                  <Share2 className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <Separator />
+
+              <div className="text-xs text-muted-foreground">
+                <p>Free to download and use for personal projects.</p>
+                <p className="mt-1">Please credit the creator when sharing.</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Creator Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">About the Creator</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-3">
+                <Avatar className="h-12 w-12">
+                  <BlobAvatarImage src={pattern.profiles?.avatar_url} />
+                  <AvatarFallback className="bg-secondary">{creatorInitials}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium">{creatorName}</p>
+                  {pattern.profiles?.username && (
+                    <p className="text-sm text-muted-foreground">@{pattern.profiles.username}</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </PageLayout>
   )
 }

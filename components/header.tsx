@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation"
 
 interface HeaderProps {
   user: SupabaseUser | null
-  profile: Profile | null
+  profile?: Profile | null
 }
 
 export function Header({ user, profile }: HeaderProps) {

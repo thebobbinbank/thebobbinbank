@@ -1,5 +1,4 @@
-import { Footer } from "@/components/footer"
-import { Header } from "@/components/header"
+import { PageLayout } from "@/components/page-layout"
 import { PatternFilters } from "@/components/pattern-filters"
 import { PatternGrid } from "@/components/pattern-grid"
 import { Button } from "@/components/ui/button"
@@ -166,86 +165,78 @@ export default async function PatternsPage({ searchParams }: PatternsPageProps) 
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header user={user} profile={profile} />
+    <PageLayout user={user} profile={profile}>
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Browse Patterns</h1>
+        <p className="mt-2 text-muted-foreground">
+          Discover {totalCount} free patterns from our community
+        </p>
+      </div>
 
-      <main className="flex-1">
-        <div className="container mx-auto px-4 py-8">
-          {/* Page Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Browse Patterns</h1>
-            <p className="mt-2 text-muted-foreground">
-              Discover {totalCount} free patterns from our community
-            </p>
+      {/* Filters */}
+      <div className="mb-8">
+        <Suspense fallback={<div className="h-10 animate-pulse rounded bg-muted" />}>
+          <PatternFilters categories={categories} />
+        </Suspense>
+      </div>
+
+      {/* Pattern Grid */}
+      <Suspense fallback={<PatternsSkeleton />}>
+        <PatternGrid
+          patterns={patterns}
+          emptyMessage="No patterns match your filters. Try adjusting your search."
+        />
+      </Suspense>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-12 flex items-center justify-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage <= 1}
+            asChild={currentPage > 1}
+          >
+            {currentPage > 1 ? (
+              <Link href={buildPageUrl(currentPage - 1)}>
+                <ChevronLeft className="mr-1 h-4 w-4" />
+                Previous
+              </Link>
+            ) : (
+              <>
+                <ChevronLeft className="mr-1 h-4 w-4" />
+                Previous
+              </>
+            )}
+          </Button>
+
+          <div className="flex items-center gap-1 px-4">
+            <span className="text-sm text-muted-foreground">
+              Page {currentPage} of {totalPages}
+            </span>
           </div>
 
-          {/* Filters */}
-          <div className="mb-8">
-            <Suspense fallback={<div className="h-10 animate-pulse rounded bg-muted" />}>
-              <PatternFilters categories={categories} />
-            </Suspense>
-          </div>
-
-          {/* Pattern Grid */}
-          <Suspense fallback={<PatternsSkeleton />}>
-            <PatternGrid
-              patterns={patterns}
-              emptyMessage="No patterns match your filters. Try adjusting your search."
-            />
-          </Suspense>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="mt-12 flex items-center justify-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={currentPage <= 1}
-                asChild={currentPage > 1}
-              >
-                {currentPage > 1 ? (
-                  <Link href={buildPageUrl(currentPage - 1)}>
-                    <ChevronLeft className="mr-1 h-4 w-4" />
-                    Previous
-                  </Link>
-                ) : (
-                  <>
-                    <ChevronLeft className="mr-1 h-4 w-4" />
-                    Previous
-                  </>
-                )}
-              </Button>
-
-              <div className="flex items-center gap-1 px-4">
-                <span className="text-sm text-muted-foreground">
-                  Page {currentPage} of {totalPages}
-                </span>
-              </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={currentPage >= totalPages}
-                asChild={currentPage < totalPages}
-              >
-                {currentPage < totalPages ? (
-                  <Link href={buildPageUrl(currentPage + 1)}>
-                    Next
-                    <ChevronRight className="ml-1 h-4 w-4" />
-                  </Link>
-                ) : (
-                  <>
-                    Next
-                    <ChevronRight className="ml-1 h-4 w-4" />
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage >= totalPages}
+            asChild={currentPage < totalPages}
+          >
+            {currentPage < totalPages ? (
+              <Link href={buildPageUrl(currentPage + 1)}>
+                Next
+                <ChevronRight className="ml-1 h-4 w-4" />
+              </Link>
+            ) : (
+              <>
+                Next
+                <ChevronRight className="ml-1 h-4 w-4" />
+              </>
+            )}
+          </Button>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      )}
+    </PageLayout>
   )
 }
