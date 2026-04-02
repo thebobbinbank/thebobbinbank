@@ -1,7 +1,6 @@
 import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
 import { PatternGrid } from "@/components/pattern-grid"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { createClient } from "@/lib/supabase/server"
@@ -67,9 +66,6 @@ export default async function HomePage() {
         <section className="relative overflow-hidden border-b bg-gradient-to-b from-secondary/50 to-background py-20 lg:py-28">
           <div className="container mx-auto px-4">
             <div className="mx-auto max-w-3xl text-center">
-              <Badge variant="secondary" className="mb-6">
-                Free Pattern Sharing Community
-              </Badge>
               <h1 className="mb-6 text-4xl font-bold tracking-tight text-balance sm:text-5xl lg:text-6xl">
                 Share the joy of sewing with{" "}
                 <span className="text-primary">The Bobbin Bank</span>
