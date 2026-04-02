@@ -40,8 +40,11 @@ export async function uploadFile(
 
         // Upload to Vercel Blob
         const folder = type === "pattern" ? "patterns" : "images"
+        // Images are public (for pattern cards, avatars)
+        // Pattern files (PDFs, ZIPs) are private (require auth to download)
+        const access = type === "image" ? "public" : "private"
         const blob = await put(`${folder}/${user.id}/${file.name}`, file, {
-            access: "private",
+            access,
             addRandomSuffix: true,
         })
 

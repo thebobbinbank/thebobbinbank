@@ -328,6 +328,7 @@ export default async function PatternPage({ params }: PatternPageProps) {
                     patternId={pattern.id}
                     fileUrl={pattern.file_url}
                     fileName={pattern.file_name || "pattern.pdf"}
+                    user={user}
                   />
 
                   <div className="flex gap-2">

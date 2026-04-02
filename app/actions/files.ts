@@ -4,18 +4,24 @@ import { createClient } from "@/lib/supabase/server"
 
 /**
  * Fetches a file from Vercel Blob storage and returns it as base64
- * Validates user authentication before providing access
+ * Public access for images (pattern thumbnails, avatars)
+ * Requires authentication for pattern files (PDFs, ZIPs)
  */
 export async function getFileAsBase64(pathname: string): Promise<string> {
     try {
-        // Verify user is authenticated
-        const supabase = await createClient()
-        const {
-            data: { user },
-        } = await supabase.auth.getUser()
+        // Check if this is an image file (public access allowed)
+        const isImageFile = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(pathname)
 
-        if (!user) {
-            throw new Error("Unauthorized")
+        // For non-image files, verify user is authenticated
+        if (!isImageFile) {
+            const supabase = await createClient()
+            const {
+                data: { user },
+            } = await supabase.auth.getUser()
+
+            if (!user) {
+                throw new Error("Unauthorized")
+            }
         }
 
         // Reconstruct the blob URL from pathname
