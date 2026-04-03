@@ -1,5 +1,7 @@
+import { DeleteAccountButton } from "@/components/delete-account-button"
 import { PageLayout } from "@/components/page-layout"
 import { ProfileForm } from "@/components/profile-form"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 
@@ -38,6 +40,21 @@ export default async function ProfilePage() {
 
       <div className="max-w-2xl">
         <ProfileForm user={user} profile={profile} />
+      </div>
+
+      <div className="mt-12 max-w-2xl">
+        <Card className="border-destructive">
+          <CardHeader>
+            <CardTitle className="text-destructive">Danger Zone</CardTitle>
+            <CardDescription>Irreversible actions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Delete your account and all associated data. This action cannot be undone.
+            </p>
+            <DeleteAccountButton />
+          </CardContent>
+        </Card>
       </div>
     </PageLayout>
   )

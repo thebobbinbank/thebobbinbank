@@ -1,6 +1,7 @@
 "use client"
 
 import { uploadFile } from "@/app/actions/upload"
+import { BlobAvatarImage } from "@/components/blob-avatar-image"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -111,7 +112,11 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
               <FieldLabel>Profile Picture</FieldLabel>
               <div className="flex items-center gap-4">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage src={avatarPreview || avatarUrl || undefined} />
+                  {avatarPreview ? (
+                    <AvatarImage src={avatarPreview} />
+                  ) : (
+                    <BlobAvatarImage src={avatarUrl || undefined} />
+                  )}
                   <AvatarFallback className="bg-secondary text-lg">{initials}</AvatarFallback>
                 </Avatar>
                 <label className="cursor-pointer">
