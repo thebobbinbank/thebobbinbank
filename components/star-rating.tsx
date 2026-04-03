@@ -1,7 +1,7 @@
 "use client"
 
-import { Star } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Star } from "lucide-react"
 
 interface StarRatingProps {
   rating: number
@@ -24,16 +24,16 @@ export function StarRating({
   interactive = false,
   onRatingChange,
 }: StarRatingProps) {
+  const ratings = Array.from({ length: maxRating }, (_, i) => i + 1)
   return (
     <div className="flex items-center gap-0.5">
-      {Array.from({ length: maxRating }).map((_, index) => {
-        const starValue = index + 1
+      {ratings.map((starValue) => {
         const isFilled = starValue <= rating
         const isHalf = !isFilled && starValue - 0.5 <= rating
 
         return (
           <button
-            key={index}
+            key={starValue}
             type="button"
             disabled={!interactive}
             onClick={() => interactive && onRatingChange?.(starValue)}

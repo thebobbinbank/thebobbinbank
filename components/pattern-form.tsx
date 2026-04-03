@@ -156,7 +156,7 @@ export function PatternForm({ user, categories, pattern }: PatternFormProps) {
     setUploadProgress("Creating pattern...")
     const slug = generateSlug(title)
 
-    const { data, error: dbError } = await supabase
+    const { error: dbError } = await supabase
       .from("patterns")
       .insert({
         user_id: user.id,
@@ -202,7 +202,8 @@ export function PatternForm({ user, categories, pattern }: PatternFormProps) {
       router.refresh()
     } catch (err) {
       console.error(err)
-      setError(err instanceof Error ? err.message : `Failed to ${isEditing ? "update" : "create"} pattern`)
+      const fallbackMessage = isEditing ? "Failed to update pattern" : "Failed to create pattern"
+      setError(err instanceof Error ? err.message : fallbackMessage)
     } finally {
       setIsUploading(false)
       setUploadProgress("")
@@ -341,7 +342,7 @@ export function PatternForm({ user, categories, pattern }: PatternFormProps) {
                 />
                 <FileText className="mb-2 h-8 w-8 text-muted-foreground" />
                 <span className="text-sm font-medium">
-                  {patternFile ? patternFile.name : (isEditing ? "Click to upload new file or skip" : "Click to upload pattern file")}
+                  {patternFile ? patternFile.name : "Click to upload pattern file"}
                 </span>
                 <span className="text-xs text-muted-foreground">
                   PDF, ZIP, or SVG (max 50MB)
@@ -416,15 +417,10 @@ export function PatternForm({ user, categories, pattern }: PatternFormProps) {
               <Spinner className="mr-2" />
               {uploadProgress || "Processing..."}
             </>
-          ) : isEditing ? (
-            <>
-              <Upload className="mr-2 h-4 w-4" />
-              Update Pattern
-            </>
           ) : (
             <>
               <Upload className="mr-2 h-4 w-4" />
-              Share Pattern
+              {isEditing ? "Update Pattern" : "Share Pattern"}
             </>
           )}
         </Button>

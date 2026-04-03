@@ -28,7 +28,6 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
   const [displayName, setDisplayName] = useState(profile?.display_name || "")
   const [username, setUsername] = useState(profile?.username || "")
   const [bio, setBio] = useState(profile?.bio || "")
-  const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || "")
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
@@ -62,7 +61,7 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
     setIsSaving(true)
 
     try {
-      let finalAvatarUrl = avatarUrl
+      let finalAvatarUrl = profile?.avatar_url
 
       // Upload avatar if changed
       if (avatarFile) {
@@ -115,7 +114,7 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
                   {avatarPreview ? (
                     <AvatarImage src={avatarPreview} />
                   ) : (
-                    <BlobAvatarImage src={avatarUrl || undefined} />
+                    <BlobAvatarImage src={profile?.avatar_url || undefined} />
                   )}
                   <AvatarFallback className="bg-secondary text-lg">{initials}</AvatarFallback>
                 </Avatar>
