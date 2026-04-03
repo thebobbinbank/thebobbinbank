@@ -1,4 +1,7 @@
--- Trigger to auto-create profile on user signup
+-- Fix profile trigger to handle username uniqueness constraint
+-- The previous version failed if a generated username already existed
+-- This version generates unique usernames by appending numbers if needed
+
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -14,12 +17,12 @@ BEGIN
   base_username := COALESCE(new.raw_user_meta_data ->> 'username', SPLIT_PART(new.email, '@', 1));
   unique_username := base_username;
 
-  -- If username is taken, append a random suffix
+  -- If username is taken, append a number suffix
   WHILE EXISTS(SELECT 1 FROM public.profiles WHERE username = unique_username) LOOP
     counter := counter + 1;
     unique_username := base_username || counter;
     IF counter > 1000 THEN
-      -- Emergency fallback: use user ID as username
+      -- Emergency fallback: use user ID as username (guaranteed unique)
       unique_username := new.id::TEXT;
       EXIT;
     END IF;
@@ -33,17 +36,11 @@ BEGIN
       COALESCE(new.raw_user_meta_data ->> 'display_name', SPLIT_PART(new.email, '@', 1))
     );
   EXCEPTION WHEN OTHERS THEN
-    -- If insertion still fails, log it but don't break signup
+    -- If insertion fails, log the error but don't break signup
+    -- User can complete signup and set username/profile later if needed
     RAISE WARNING 'Failed to create profile for user %: %', new.id, SQLERRM;
   END;
 
   RETURN new;
 END;
 $$;
-
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW
-  EXECUTE FUNCTION public.handle_new_user();

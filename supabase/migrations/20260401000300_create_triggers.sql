@@ -5,14 +5,38 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
+DECLARE
+  base_username TEXT;
+  unique_username TEXT;
+  counter INT := 0;
 BEGIN
-  INSERT INTO public.profiles (id, username, display_name)
-  VALUES (
-    new.id,
-    COALESCE(new.raw_user_meta_data ->> 'username', SPLIT_PART(new.email, '@', 1)),
-    COALESCE(new.raw_user_meta_data ->> 'display_name', SPLIT_PART(new.email, '@', 1))
-  )
-  ON CONFLICT (id) DO NOTHING;
+  -- Generate base username from email or metadata
+  base_username := COALESCE(new.raw_user_meta_data ->> 'username', SPLIT_PART(new.email, '@', 1));
+  unique_username := base_username;
+
+  -- If username is taken, append a random suffix
+  WHILE EXISTS(SELECT 1 FROM public.profiles WHERE username = unique_username) LOOP
+    counter := counter + 1;
+    unique_username := base_username || counter;
+    IF counter > 1000 THEN
+      -- Emergency fallback: use user ID as username
+      unique_username := new.id::TEXT;
+      EXIT;
+    END IF;
+  END LOOP;
+
+  BEGIN
+    INSERT INTO public.profiles (id, username, display_name)
+    VALUES (
+      new.id,
+      unique_username,
+      COALESCE(new.raw_user_meta_data ->> 'display_name', SPLIT_PART(new.email, '@', 1))
+    );
+  EXCEPTION WHEN OTHERS THEN
+    -- If insertion still fails, log it but don't break signup
+    RAISE WARNING 'Failed to create profile for user %: %', new.id, SQLERRM;
+  END;
+
   RETURN new;
 END;
 $$;
