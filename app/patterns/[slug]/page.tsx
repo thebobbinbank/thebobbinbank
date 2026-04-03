@@ -1,6 +1,7 @@
 import { BlobAvatarImage } from "@/components/blob-avatar-image"
 import { BlobImage } from "@/components/blob-image"
 import { CommentSection } from "@/components/comment-section"
+import { DeletePatternButton } from "@/components/delete-pattern-button"
 import { DownloadButton } from "@/components/download-button"
 import { FavoriteButton } from "@/components/favorite-button"
 import { PageLayout } from "@/components/page-layout"
@@ -335,11 +336,17 @@ export default async function PatternPage({ params }: PatternPageProps) {
                 />
                 <ShareButton title={pattern.title} />
                 {user && user.id === pattern.user_id && (
-                  <Button asChild variant="outline" size="icon">
-                    <Link href={`/patterns/${pattern.slug}/edit`}>
-                      <Edit className="h-4 w-4" />
-                    </Link>
-                  </Button>
+                  <>
+                    <Button asChild variant="outline" size="icon">
+                      <Link href={`/patterns/${pattern.slug}/edit`}>
+                        <Edit className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                    <DeletePatternButton
+                      patternId={pattern.id}
+                      patternTitle={pattern.title}
+                    />
+                  </>
                 )}
               </div>
 

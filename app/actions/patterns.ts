@@ -80,3 +80,37 @@ export async function updatePattern(
 
     return data as Pattern
 }
+
+export async function deletePattern(patternId: string): Promise<void> {
+    const supabase = await createClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+        throw new Error("Unauthorized")
+    }
+
+    // Get the pattern to verify ownership
+    const { data: pattern, error: fetchError } = await supabase
+        .from("patterns")
+        .select("user_id")
+        .eq("id", patternId)
+        .single()
+
+    if (fetchError || !pattern) {
+        throw new Error("Pattern not found")
+    }
+
+    if (pattern.user_id !== user.id) {
+        throw new Error("Unauthorized")
+    }
+
+    // Delete the pattern
+    const { error: deleteError } = await supabase
+        .from("patterns")
+        .delete()
+        .eq("id", patternId)
+
+    if (deleteError) {
+        throw deleteError
+    }
+}
