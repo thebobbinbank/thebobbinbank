@@ -74,7 +74,7 @@ async function getPatternsData(searchParams: Awaited<PatternsPageProps["searchPa
       query = query.order("created_at", { ascending: true })
       break
     case "popular":
-      query = query.order("download_count", { ascending: false })
+      query = query.order("downloads", { ascending: false })
       break
     case "rating":
       query = query.order("created_at", { ascending: false }) // TODO: Add avg_rating computed column

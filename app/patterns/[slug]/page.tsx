@@ -250,7 +250,7 @@ export default async function PatternPage({ params }: PatternPageProps) {
 
               <div className="flex items-center gap-1.5">
                 <Download className="h-4 w-4" />
-                <span>{pattern.download_count} downloads</span>
+                <span>{pattern.downloads} downloads</span>
               </div>
 
               {reviewCount > 0 && (

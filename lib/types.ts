@@ -29,7 +29,7 @@ export interface Pattern {
   file_url: string
   file_name: string | null
   tags: string[]
-  download_count: number
+  downloads: number
   created_at: string
   updated_at: string
   // Joined fields

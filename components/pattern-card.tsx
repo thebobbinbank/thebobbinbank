@@ -85,7 +85,7 @@ export function PatternCard({ pattern }: PatternCardProps) {
               )}
               <div className="flex items-center gap-1">
                 <Download className="h-3.5 w-3.5" />
-                <span>{pattern.download_count}</span>
+                <span>{pattern.downloads}</span>
               </div>
             </div>
           </div>

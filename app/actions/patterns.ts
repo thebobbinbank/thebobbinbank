@@ -7,17 +7,26 @@ export async function incrementDownloadCount(patternId: string): Promise<void> {
     try {
         const supabase = await createClient()
 
-        // Increment download count
-        const { error } = await supabase.rpc("increment_download_count", {
-            pattern_id: patternId,
-        })
+        // Get current download count
+        const { data: pattern, error: fetchError } = await supabase
+            .from("patterns")
+            .select("downloads")
+            .eq("id", patternId)
+            .single()
 
-        // If RPC doesn't exist, use raw update
-        if (error) {
-            await supabase
-                .from("patterns")
-                .update({ download_count: supabase.rpc("download_count") })
-                .eq("id", patternId)
+        if (fetchError || !pattern) {
+            console.error("Failed to fetch pattern:", fetchError)
+            return
+        }
+
+        // Increment download count
+        const { error: updateError } = await supabase
+            .from("patterns")
+            .update({ downloads: pattern.downloads + 1 })
+            .eq("id", patternId)
+
+        if (updateError) {
+            console.error("Failed to increment download count:", updateError)
         }
     } catch (error) {
         console.error("Download increment error:", error)
