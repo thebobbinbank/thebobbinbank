@@ -22,6 +22,14 @@ export async function getFileAsBase64(pathname: string): Promise<string> {
             if (!user) {
                 throw new Error("Unauthorized")
             }
+
+            // SECURITY: Verify the file belongs to this user by checking if pathname contains their user_id
+            // Files are stored in pattern: "patterns/{user_id}/filename-random"
+            // This ensures users can only access their own files
+            if (!pathname.includes(`/patterns/${user.id}/`)) {
+                console.warn(`Access denied: User ${user.id} tried to access ${pathname}`)
+                throw new Error("Unauthorized")
+            }
         }
 
         // Reconstruct the blob URL from pathname

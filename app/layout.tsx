@@ -1,6 +1,7 @@
 import { Analytics } from '@vercel/analytics/next';
 import type { Metadata } from 'next';
 import { Geist_Mono, Source_Serif_4 } from 'next/font/google';
+import Head from 'next/head';
 import './globals.css';
 
 const sourceSerif = Source_Serif_4({
@@ -43,6 +44,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <Head>
+        <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="a26e3793-f318-460c-a4d7-98ec8fab570c" data-blockingmode="auto" type="text/javascript"></script>
+      </Head>
       <body className={`${sourceSerif.variable} ${geistMono.variable} font-sans antialiased`}>
         {children}
         <Analytics />

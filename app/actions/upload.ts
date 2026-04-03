@@ -3,6 +3,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { put } from "@vercel/blob";
 
+// File size limits (in bytes)
+const MAX_PATTERN_SIZE = 100 * 1024 * 1024;  // 100 MB
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;      // 5 MB
+
 export async function uploadFile(
     formData: FormData,
     type: "pattern" | "image"
@@ -19,6 +23,14 @@ export async function uploadFile(
 
         if (!file) {
             throw new Error("No file provided")
+        }
+
+        // Validate file size
+        const maxSize = type === "pattern" ? MAX_PATTERN_SIZE : MAX_IMAGE_SIZE
+        const maxSizeMB = maxSize / (1024 * 1024)
+
+        if (file.size > maxSize) {
+            throw new Error(`File exceeds ${maxSizeMB}MB limit (size: ${(file.size / (1024 * 1024)).toFixed(1)}MB)`)
         }
 
         // Validate file types
