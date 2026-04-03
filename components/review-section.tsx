@@ -96,21 +96,24 @@ export function ReviewSection({
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="mb-2 block text-sm font-medium">
+                <label htmlFor="rating" className="mb-2 block text-sm font-medium">
                   {userReview ? "Update your rating" : "Your rating"}
                 </label>
-                <StarRating
-                  rating={rating}
-                  interactive
-                  onRatingChange={setRating}
-                  size="lg"
-                />
+                <div id="rating">
+                  <StarRating
+                    rating={rating}
+                    interactive
+                    onRatingChange={setRating}
+                    size="lg"
+                  />
+                </div>
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium">
+                <label htmlFor="review-content" className="mb-2 block text-sm font-medium">
                   Your review (optional)
                 </label>
                 <Textarea
+                  id="review-content"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Share your experience with this pattern..."

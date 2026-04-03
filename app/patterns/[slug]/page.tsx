@@ -20,7 +20,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 interface PatternPageProps {
-  params: Promise<{ slug: string }>
+  readonly params: Promise<{ readonly slug: string }>
 }
 
 const difficultyColors = {

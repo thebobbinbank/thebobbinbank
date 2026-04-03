@@ -119,8 +119,9 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
                   )}
                   <AvatarFallback className="bg-secondary text-lg">{initials}</AvatarFallback>
                 </Avatar>
-                <label className="cursor-pointer">
+                <label htmlFor="avatar-file" className="cursor-pointer">
                   <input
+                    id="avatar-file"
                     type="file"
                     className="hidden"
                     accept="image/jpeg,image/png,image/webp"
@@ -154,7 +155,7 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
               <Input
                 id="username"
                 value={username}
-                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+                onChange={(e) => setUsername(e.target.value.toLowerCase().replaceAll(/[^a-z0-9_]/g, ""))}
                 placeholder="username"
                 maxLength={30}
               />

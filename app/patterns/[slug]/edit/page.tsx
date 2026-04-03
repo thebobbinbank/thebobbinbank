@@ -5,7 +5,7 @@ import type { Category, Pattern } from "@/lib/types"
 import { notFound, redirect } from "next/navigation"
 
 interface EditPatternPageProps {
-  params: Promise<{ slug: string }>
+  readonly params: Promise<{ readonly slug: string }>
 }
 
 async function getEditData(slug: string) {

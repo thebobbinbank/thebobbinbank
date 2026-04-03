@@ -11,12 +11,12 @@ import { Suspense } from "react"
 const PATTERNS_PER_PAGE = 12
 
 interface PatternsPageProps {
-  searchParams: Promise<{
-    search?: string
-    category?: string
-    difficulty?: string
-    sort?: string
-    page?: string
+  readonly searchParams: Promise<{
+    readonly search?: string
+    readonly category?: string
+    readonly difficulty?: string
+    readonly sort?: string
+    readonly page?: string
   }>
 }
 
@@ -85,7 +85,7 @@ async function getPatternsData(searchParams: Awaited<PatternsPageProps["searchPa
   }
 
   // Pagination
-  const page = parseInt(searchParams.page || "1", 10)
+  const page = Number.parseInt(searchParams.page || "1", 10)
   const from = (page - 1) * PATTERNS_PER_PAGE
   const to = from + PATTERNS_PER_PAGE - 1
 

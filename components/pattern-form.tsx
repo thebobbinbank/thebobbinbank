@@ -34,8 +34,8 @@ interface PatternFormProps {
 function generateSlug(title: string): string {
   return title
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "")
+    .replaceAll(/[^a-z0-9]+/g, "-")
+    .replaceAll(/(^-|-$)/g, "")
     .slice(0, 100) + "-" + Date.now().toString(36)
 }
 
@@ -110,83 +110,93 @@ export function PatternForm({ user, categories, pattern }: PatternFormProps) {
     setTags(tags.filter((t) => t !== tagToRemove))
   }
 
+  const validateForm = (): string | null => {
+    if (!title.trim()) return "Please enter a title"
+    if (!isEditing && !patternFile) return "Please upload a pattern file"
+    return null
+  }
+
+  const uploadPatternFile = async (): Promise<string | null> => {
+    if (!patternFile) return null
+    setUploadProgress("Uploading pattern file...")
+    const formData = new FormData()
+    formData.append("file", patternFile)
+    const { url } = await uploadFile(formData, "pattern")
+    return url
+  }
+
+  const uploadImageFile = async (): Promise<string | null> => {
+    if (!imageFile) return null
+    setUploadProgress("Uploading preview image...")
+    const formData = new FormData()
+    formData.append("file", imageFile)
+    const { url } = await uploadFile(formData, "image")
+    return url
+  }
+
+  const determineImageUrl = async (): Promise<string | null> => {
+    if (imageFile) return uploadImageFile()
+    return isEditing ? originalImageUrl : null
+  }
+
+  const updateExistingPattern = async (fileUrl: string | null, imageUrl: string | null): Promise<void> => {
+    setUploadProgress("Updating pattern...")
+    await updatePattern(pattern!.id, {
+      title: title.trim(),
+      description: description.trim() || null,
+      category_id: categoryId || null,
+      difficulty,
+      tags,
+      image_url: imageUrl,
+    })
+    router.push(`/patterns/${pattern!.slug}`)
+  }
+
+  const createNewPattern = async (fileUrl: string | null, imageUrl: string | null): Promise<void> => {
+    setUploadProgress("Creating pattern...")
+    const slug = generateSlug(title)
+
+    const { data, error: dbError } = await supabase
+      .from("patterns")
+      .insert({
+        user_id: user.id,
+        category_id: categoryId || null,
+        title: title.trim(),
+        slug,
+        description: description.trim() || null,
+        difficulty,
+        image_url: imageUrl,
+        file_url: fileUrl,
+        file_name: patternFile!.name,
+        tags,
+      })
+      .select()
+      .single()
+
+    if (dbError) throw dbError
+    router.push(`/patterns/${slug}`)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
-    if (!title.trim()) {
-      setError("Please enter a title")
-      return
-    }
-
-    if (!isEditing && !patternFile) {
-      setError("Please upload a pattern file")
+    const validationError = validateForm()
+    if (validationError) {
+      setError(validationError)
       return
     }
 
     setIsUploading(true)
 
     try {
-      let fileUrl: string | null = null
-      let imageUrl: string | null = null
-
-      // Upload pattern file only if new file provided (edit mode)
-      if (patternFile) {
-        setUploadProgress("Uploading pattern file...")
-        const patternFormData = new FormData()
-        patternFormData.append("file", patternFile)
-        const { url } = await uploadFile(patternFormData, "pattern")
-        fileUrl = url
-      }
-
-      // Upload image if new file provided
-      if (imageFile) {
-        setUploadProgress("Uploading preview image...")
-        const imageFormData = new FormData()
-        imageFormData.append("file", imageFile)
-        const { url } = await uploadFile(imageFormData, "image")
-        imageUrl = url
-      } else if (isEditing) {
-        // When editing without uploading new image, keep the original URL
-        imageUrl = originalImageUrl
-      }
+      const fileUrl = await uploadPatternFile()
+      const imageUrl = await determineImageUrl()
 
       if (isEditing) {
-        // Update existing pattern
-        setUploadProgress("Updating pattern...")
-        await updatePattern(pattern!.id, {
-          title: title.trim(),
-          description: description.trim() || null,
-          category_id: categoryId || null,
-          difficulty,
-          tags,
-          image_url: imageUrl,
-        })
-        router.push(`/patterns/${pattern!.slug}`)
+        await updateExistingPattern(fileUrl, imageUrl)
       } else {
-        // Create new pattern
-        setUploadProgress("Creating pattern...")
-        const slug = generateSlug(title)
-
-        const { data, error: dbError } = await supabase
-          .from("patterns")
-          .insert({
-            user_id: user.id,
-            category_id: categoryId || null,
-            title: title.trim(),
-            slug,
-            description: description.trim() || null,
-            difficulty,
-            image_url: imageUrl,
-            file_url: fileUrl,
-            file_name: patternFile!.name,
-            tags,
-          })
-          .select()
-          .single()
-
-        if (dbError) throw dbError
-        router.push(`/patterns/${slug}`)
+        await createNewPattern(fileUrl, imageUrl)
       }
 
       router.refresh()
@@ -321,8 +331,9 @@ export function PatternForm({ user, categories, pattern }: PatternFormProps) {
               </div>
             )}
             <div className="flex items-center gap-4">
-              <label className="flex flex-1 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/50 p-8 transition-colors hover:border-primary/50 hover:bg-muted">
+              <label htmlFor="pattern-file" className="flex flex-1 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/50 p-8 transition-colors hover:border-primary/50 hover:bg-muted">
                 <input
+                  id="pattern-file"
                   type="file"
                   className="hidden"
                   accept=".pdf,.zip,.svg"
@@ -343,8 +354,9 @@ export function PatternForm({ user, categories, pattern }: PatternFormProps) {
           <Field>
             <FieldLabel>Preview Image (recommended)</FieldLabel>
             <div className="flex items-start gap-4">
-              <label className="flex flex-1 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/50 p-8 transition-colors hover:border-primary/50 hover:bg-muted">
+              <label htmlFor="image-file" className="flex flex-1 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/50 p-8 transition-colors hover:border-primary/50 hover:bg-muted">
                 <input
+                  id="image-file"
                   type="file"
                   className="hidden"
                   accept="image/jpeg,image/png,image/webp,image/gif"
