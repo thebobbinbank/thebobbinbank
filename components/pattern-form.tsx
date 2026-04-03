@@ -1,5 +1,7 @@
 "use client"
 
+import { getFileAsBase64 } from "@/app/actions/files"
+import { updatePattern } from "@/app/actions/patterns"
 import { uploadFile } from "@/app/actions/upload"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,15 +18,17 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import { createClient } from "@/lib/supabase/client"
-import type { Category, Difficulty } from "@/lib/types"
+import type { Category, Difficulty, Pattern } from "@/lib/types"
+import { base64ToDataUrl, getContentType, getPathFromBlobUrl } from "@/lib/utils"
 import type { User } from "@supabase/supabase-js"
 import { FileText, Image as ImageIcon, Upload, X } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 interface PatternFormProps {
   user: User
   categories: Category[]
+  pattern?: Pattern
 }
 
 function generateSlug(title: string): string {
@@ -35,24 +39,45 @@ function generateSlug(title: string): string {
     .slice(0, 100) + "-" + Date.now().toString(36)
 }
 
-export function PatternForm({ user, categories }: PatternFormProps) {
+export function PatternForm({ user, categories, pattern }: PatternFormProps) {
   const router = useRouter()
   const supabase = createClient()
+  const isEditing = !!pattern
 
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [categoryId, setCategoryId] = useState("")
-  const [difficulty, setDifficulty] = useState<Difficulty>("beginner")
-  const [tags, setTags] = useState<string[]>([])
+  const [title, setTitle] = useState(pattern?.title || "")
+  const [description, setDescription] = useState(pattern?.description || "")
+  const [categoryId, setCategoryId] = useState(pattern?.category_id || "")
+  const [difficulty, setDifficulty] = useState<Difficulty>(pattern?.difficulty || "beginner")
+  const [tags, setTags] = useState<string[]>(pattern?.tags || [])
   const [tagInput, setTagInput] = useState("")
 
   const [patternFile, setPatternFile] = useState<File | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(pattern?.image_url || null)
+  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(pattern?.image_url || null)
 
   const [isUploading, setIsUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState("")
   const [error, setError] = useState<string | null>(null)
+
+  // Load existing image as data URL when editing
+  useEffect(() => {
+    if (isEditing && pattern?.image_url && !imageFile) {
+      const loadImage = async () => {
+        try {
+          const imageUrl = pattern.image_url!
+          const pathname = getPathFromBlobUrl(imageUrl)
+          const base64 = await getFileAsBase64(pathname)
+          const contentType = getContentType(pathname)
+          const dataUrl = base64ToDataUrl(base64, contentType)
+          setImagePreview(dataUrl)
+        } catch (err) {
+          console.error("Failed to load image:", err)
+        }
+      }
+      loadImage()
+    }
+  }, [isEditing, pattern?.image_url, imageFile])
 
   const handleImageChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -94,7 +119,7 @@ export function PatternForm({ user, categories }: PatternFormProps) {
       return
     }
 
-    if (!patternFile) {
+    if (!isEditing && !patternFile) {
       setError("Please upload a pattern file")
       return
     }
@@ -102,50 +127,72 @@ export function PatternForm({ user, categories }: PatternFormProps) {
     setIsUploading(true)
 
     try {
-      // Upload pattern file
-      setUploadProgress("Uploading pattern file...")
-      const patternFormData = new FormData()
-      patternFormData.append("file", patternFile)
-      const { url: fileUrl } = await uploadFile(patternFormData, "pattern")
-
-      // Upload image if provided
+      let fileUrl: string | null = null
       let imageUrl: string | null = null
+
+      // Upload pattern file only if new file provided (edit mode)
+      if (patternFile) {
+        setUploadProgress("Uploading pattern file...")
+        const patternFormData = new FormData()
+        patternFormData.append("file", patternFile)
+        const { url } = await uploadFile(patternFormData, "pattern")
+        fileUrl = url
+      }
+
+      // Upload image if new file provided
       if (imageFile) {
         setUploadProgress("Uploading preview image...")
         const imageFormData = new FormData()
         imageFormData.append("file", imageFile)
         const { url } = await uploadFile(imageFormData, "image")
         imageUrl = url
+      } else if (isEditing) {
+        // When editing without uploading new image, keep the original URL
+        imageUrl = originalImageUrl
       }
 
-      // Create pattern in database
-      setUploadProgress("Creating pattern...")
-      const slug = generateSlug(title)
-
-      const { data, error: dbError } = await supabase
-        .from("patterns")
-        .insert({
-          user_id: user.id,
-          category_id: categoryId || null,
+      if (isEditing) {
+        // Update existing pattern
+        setUploadProgress("Updating pattern...")
+        await updatePattern(pattern!.id, {
           title: title.trim(),
-          slug,
           description: description.trim() || null,
+          category_id: categoryId || null,
           difficulty,
-          image_url: imageUrl,
-          file_url: fileUrl,
-          file_name: patternFile.name,
           tags,
+          image_url: imageUrl,
         })
-        .select()
-        .single()
+        router.push(`/patterns/${pattern!.slug}`)
+      } else {
+        // Create new pattern
+        setUploadProgress("Creating pattern...")
+        const slug = generateSlug(title)
 
-      if (dbError) throw dbError
+        const { data, error: dbError } = await supabase
+          .from("patterns")
+          .insert({
+            user_id: user.id,
+            category_id: categoryId || null,
+            title: title.trim(),
+            slug,
+            description: description.trim() || null,
+            difficulty,
+            image_url: imageUrl,
+            file_url: fileUrl,
+            file_name: patternFile!.name,
+            tags,
+          })
+          .select()
+          .single()
 
-      router.push(`/patterns/${slug}`)
+        if (dbError) throw dbError
+        router.push(`/patterns/${slug}`)
+      }
+
       router.refresh()
     } catch (err) {
       console.error(err)
-      setError(err instanceof Error ? err.message : "Failed to create pattern")
+      setError(err instanceof Error ? err.message : `Failed to ${isEditing ? "update" : "create"} pattern`)
     } finally {
       setIsUploading(false)
       setUploadProgress("")
@@ -259,12 +306,20 @@ export function PatternForm({ user, categories }: PatternFormProps) {
       <Card>
         <CardHeader>
           <CardTitle>Files</CardTitle>
-          <CardDescription>Upload your pattern file and preview image</CardDescription>
+          <CardDescription>
+            {isEditing ? "Update your pattern file and preview image (optional)" : "Upload your pattern file and preview image"}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Pattern File */}
           <Field>
-            <FieldLabel>Pattern File *</FieldLabel>
+            <FieldLabel>Pattern File {!isEditing && "*"}</FieldLabel>
+            {isEditing && !patternFile && pattern?.file_name && (
+              <div className="mb-4 rounded-lg bg-accent/10 p-4 text-sm">
+                <p className="font-medium">Current file:</p>
+                <p className="text-muted-foreground">{pattern.file_name}</p>
+              </div>
+            )}
             <div className="flex items-center gap-4">
               <label className="flex flex-1 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/50 p-8 transition-colors hover:border-primary/50 hover:bg-muted">
                 <input
@@ -275,7 +330,7 @@ export function PatternForm({ user, categories }: PatternFormProps) {
                 />
                 <FileText className="mb-2 h-8 w-8 text-muted-foreground" />
                 <span className="text-sm font-medium">
-                  {patternFile ? patternFile.name : "Click to upload pattern file"}
+                  {patternFile ? patternFile.name : (isEditing ? "Click to upload new file or skip" : "Click to upload pattern file")}
                 </span>
                 <span className="text-xs text-muted-foreground">
                   PDF, ZIP, or SVG (max 50MB)
@@ -298,7 +353,7 @@ export function PatternForm({ user, categories }: PatternFormProps) {
                 {imagePreview ? (
                   <img
                     src={imagePreview}
-                    alt="Preview"
+                    alt={`Pattern preview for ${pattern?.title || 'pattern'}`}
                     className="h-32 w-auto rounded object-cover"
                   />
                 ) : (
@@ -319,7 +374,9 @@ export function PatternForm({ user, categories }: PatternFormProps) {
                   onClick={() => {
                     setImageFile(null)
                     setImagePreview(null)
+                    setOriginalImageUrl(null)
                   }}
+                  title="Remove image"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -345,7 +402,12 @@ export function PatternForm({ user, categories }: PatternFormProps) {
           {isUploading ? (
             <>
               <Spinner className="mr-2" />
-              {uploadProgress || "Uploading..."}
+              {uploadProgress || "Processing..."}
+            </>
+          ) : isEditing ? (
+            <>
+              <Upload className="mr-2 h-4 w-4" />
+              Update Pattern
             </>
           ) : (
             <>

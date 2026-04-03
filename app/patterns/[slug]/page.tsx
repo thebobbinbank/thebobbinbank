@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { createClient } from "@/lib/supabase/server"
 import type { Comment, Pattern, Review } from "@/lib/types"
-import { ArrowLeft, Calendar, Download } from "lucide-react"
+import { ArrowLeft, Calendar, Download, Edit } from "lucide-react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
@@ -334,6 +334,13 @@ export default async function PatternPage({ params }: PatternPageProps) {
                   user={user}
                 />
                 <ShareButton title={pattern.title} />
+                {user && user.id === pattern.user_id && (
+                  <Button asChild variant="outline" size="icon">
+                    <Link href={`/patterns/${pattern.slug}/edit`}>
+                      <Edit className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                )}
               </div>
 
               <Separator />
